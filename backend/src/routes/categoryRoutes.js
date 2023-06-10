@@ -44,7 +44,14 @@ router.put('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    await Category.findByIdAndDelete(id);
+    const category = await Category.findById(id);
+
+    if (!category) {
+      return res.status(404).json({ message: 'Category not found' });
+    }
+
+    await deleteCategoryRecursive(id);
+
     res.json({ message: 'Category deleted successfully' });
   } catch (error) {
     res.status(500).json({ error: 'Failed to delete category' });
@@ -64,6 +71,18 @@ router.get('/treeview', async (req, res) => {
     res.status(500).json({ error: 'Failed to retrieve categories in tree view' });
   }
 });
+
+// Recursive function to delete a category and its children
+async function deleteCategoryRecursive(categoryId) {
+  await Category.findByIdAndDelete(categoryId);
+
+  const children = await Category.find({ parentId: categoryId });
+
+  for (const child of children) {
+    await deleteCategoryRecursive(child._id);
+  }
+}
+
 
 // Helper function to build category tree
 function buildCategoryTree(categories) {
