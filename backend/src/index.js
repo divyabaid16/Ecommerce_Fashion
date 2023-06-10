@@ -13,7 +13,7 @@ const categoryRoutes = require('./routes/categoryRoutes');
 app.use('/api/categories', categoryRoutes);
 
 // Start the server
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
 
@@ -28,3 +28,5 @@ mongoose.connect(process.env.MONGODB_URI, {
 .catch((error) => {
   console.error('Error connecting to MongoDB:', error);
 });
+
+module.exports = server;
